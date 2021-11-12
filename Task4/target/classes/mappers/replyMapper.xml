@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+ <mapper namespace="com.spring.treemap.mapper.ReplyMapper">
+ 
+ <insert id="insertReply">
+INSERT INTO counsel_info(bno_counsel,repContent_counsel,repWriter_counsel) VALUES(#{bno},#{title}, #{context}, #{writer})
+</insert>
+
+<select id="readReplys" resultType="list">
+SELECT * FROM counsel_reply where bno_counsel #{bno}
+</select>
+
+<select id="countReplys" resultType="int">
+SELECT COUNT(*) FROM counsel_reply where bno_counsel #{bno}
+</select>
+
+ </mapper>
