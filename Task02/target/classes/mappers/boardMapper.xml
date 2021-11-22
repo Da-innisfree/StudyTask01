@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.zerock.crizen.mapper.BoardMapper">
+
+	<insert id="insertBoard">
+		INSERT INTO counsel_info(title_counsel,content_counsel,writer_counsel)
+		VALUES(#{title}, #{context}, #{writer})
+	</insert>
+
+	<resultMap type="org.zerock.crizen.domain.BoardVO"
+		id="boardMap">
+		<result property="bno" column="seq_counsel" />
+		<result property="title" column="title_counsel" />
+		<result property="context" column="content_counsel" />
+		<result property="writer" column="writer_counsel" />
+		<result property="regDate" column="regDate_counsel" />
+		<result property="editor" column="editor_counsel" />
+		<result property="updateDate" column="updateDate_cousel" />
+	</resultMap>
+
+	<select id="readBoard" resultMap="boardMap">
+		SELECT * FROM counsel_info where seq_counsel = #{bno}
+	</select>
+
+	<select id="readBoardList" resultMap="boardMap">
+		SELECT * FROM counsel_info ORDER BY regDate_counsel DESC
+	</select>
+
+	<select id="searchBoardList" resultMap="boardMap">
+		SELECT * FROM counsel_info
+		<if test="type !=null">
+			<if test="type=='W'.toString()">
+				WHERE writer_counsel like concat('%',#{keyword},'%')
+			</if>
+			<if test="type=='T'.toString()">
+				WHERE title_counsel like concat('%',#{keyword},'%')
+			</if>
+			<if test="type=='C'.toString()">
+				WHERE content_counsel like concat('%',#{keyword},'%')
+			</if>
+			<if test="type=='D'.toString()">
+				WHERE regDate_counsel like concat('%',#{keyword},'%')
+			</if>
+			<if test="type=='TC'.toString()">
+				WHERE title_counsel like concat('%',#{keyword},'%')
+				OR content_counsel like concat('%',#{keyword},'%')
+			</if>
+		</if>
+		ORDER BY regDate_counsel DESC
+	</select>
+
+	<update id="updateBoard">
+		UPDATE counsel_info set title_counsel =#{title}
+		,content_counsel=#{context},editor_counsel=#{editor} where seq_counsel
+		= #{bno}
+	</update>
+
+	<delete id="deleteBoard">
+		DELETE FROM counsel_info WHERE seq_counsel = #{bno}
+	</delete>
+
+
+	<delete id="deleteBoardAf5">
+	<![CDATA[
+		DELETE FROM counsel_info WHERE regDate_counsel < DATE_SUB(NOW(), INTERVAL 5 DAY);
+	]]>
+	</delete>
+
+</mapper>

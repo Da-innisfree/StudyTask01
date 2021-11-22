@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
+
+	<!-- mapper.xml 파일과 mapper 인터페이스 매핑을 위해 인터페이스 bean 설정 -->
+	<mybatis-spring:scan
+		base-package="org.zerock.crizen.mapper" />
+		<context:component-scan base-package="org.zerock.crizen"/>
+		
+		<context:component-scan base-package="org.zerock.crizen.controller"/>
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+
+	<!-- MariaDB JDBC DataSource -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"
+			value="org.mariadb.jdbc.Driver" />
+		<property name="url" value="jdbc:mariadb://:3306/boarddb" />
+		<property name="username" value="root" />
+		<property name="password" value="system" />
+	</bean>
+
+	<!-- mybatis SqlSessionFactoryBean -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation"
+			value="classpath:/mybatis-config.xml" />
+		<property name="mapperLocations"
+			value="classpath:/mappers/**/*Mapper.xml" />
+	</bean>
+
+	<bean id="sqlSession"
+		class="org.mybatis.spring.SqlSessionTemplate"
+		destroy-method="clearCache">
+		<constructor-arg name="sqlSessionFactory"
+			ref="sqlSessionFactory" />
+	</bean>
+
+
+
+	<bean id="job1"
+		class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass">
+			<value>org.zerock.crizen.batch.Job1</value>
+		</property>
+			<!--jobClass에 넘길 데이터에 위에 선언한 Service 세팅 -->
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="boardService" value-ref="boardServiceImpl"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="jobTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="job1" />
+		</property>
+		<property name="cronExpression" value="0 0/3 * * * ?" />
+	</bean>
+
+	<bean id="jobScheduler"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<!-- 트리거 여러개 설정 가능 -->
+			<list>
+				<ref bean="jobTrigger" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

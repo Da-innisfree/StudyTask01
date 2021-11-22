@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.zerock.crizen.mapper.MemberMapper">
+
+	<resultMap type="org.zerock.crizen.domain.MemberVO"
+		id="memberMap">
+		<result property="username" column="user_id_counsel" />
+		<result property="password" column="user_pw_counsel" />
+		<result property="regDate" column="signUpDate_counsel" />
+		<result property="isEnabled" column="isEnabled_counsel" />
+		<result property="failCnt" column="failCnt_counsel" />
+		<collection property="authList" resultMap="authMap" />
+	</resultMap>
+
+	<resultMap type="org.zerock.crizen.domain.AuthVO"
+		id="authMap">
+		<result property="username" column="user_id_counsel" />
+		<result property="auth" column="auth_counsel" />
+	</resultMap>
+
+
+	<select id="read" resultMap="memberMap">
+		SELECT mem.user_id_counsel,
+		user_pw_counsel, signUpDate_counsel, isEnabled_counsel, failCnt_counsel
+		auth_counsel FROM USER_INFO mem
+		LEFT OUTER JOIN auth_info auth on mem.user_id_counsel =
+		auth.user_id_counsel where mem.user_id_counsel = #{username}
+	</select>
+
+	<insert id="insertMember">
+		INSERT INTO USER_INFO(user_id_counsel,
+		user_pw_counsel)
+		VALUES(#{username}, #{password});
+	</insert>
+
+	<insert id="insertAuth">
+		INSERT INTO AUTH_INFO(user_id_counsel, auth_counsel ) VALUES
+		<foreach collection="authList" item="item" separator=",">
+			(#{item.username}, #{item.auth})
+		</foreach>
+	</insert>
+	
+	<update id="updatePW">
+	UPDATE USER_INFO SET user_pw_counsel=#{password}, failCnt_counsel = 0, isEnabled_counsel='1'  WHERE user_id_counsel = #{username}
+	</update>
+
+	<update id="failCntUpdate">
+		UPDATE USER_INFO
+		SET failCnt_counsel = failCnt_counsel+1 WHERE user_id_counsel = #{username}
+	</update>
+	
+	<select id="chkFailCnt" resultType="int">
+		SELECT failCnt_counsel FROM USER_INFO WHERE user_id_counsel = #{username}
+	</select>
+	
+	<update id="disabledMember">
+	UPDATE USER_INFO SET isEnabled_counsel=#{isEnabled} WHERE user_id_counsel = #{username}
+	</update>
+
+</mapper>

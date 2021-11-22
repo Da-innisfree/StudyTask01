@@ -1,0 +1,13 @@
+header{
+	display: flex;
+	margin: 30px 10px;
+}
+
+button{
+	padding : 10px 10px;
+	margin: 10px 10px;
+}
+
+textarea{
+	margin : 20px 0px ;
+}
